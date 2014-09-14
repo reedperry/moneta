@@ -1,0 +1,18 @@
+application: slickbudget
+version: dev
+runtime: go
+api_version: go1
+
+handlers:
+- url: /
+  static_files: index.html
+  upload: index\.html
+
+- url: /js
+  static_dir: js
+
+- url: /styles
+  static_dir: styles
+
+- url: /views
+  static_dir: views
