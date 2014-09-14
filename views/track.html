@@ -1,0 +1,15 @@
+<div>
+    <ng-form role="form" novalidate>
+        <label class="control-label">New Expense</label>
+        <input type="number" ng-model="track.newExpense"/>
+        <label class="control-label">New Credit</label>
+        <input type="number" ng-model="track.newCredit"/>
+    </ng-form>
+
+    <div>
+        Expenses
+        <p ng-repeat="expense in track.expenses">
+            {{expense.amount | currency}} | {{expense.comments}} | {{expense.date | date : 'short'}}
+        </p>
+    </div>
+</div>

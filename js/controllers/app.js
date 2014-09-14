@@ -1,21 +1,22 @@
-controllers.controller('AppController', ['$location', function AppControllerFactory($location) {
+controllers.controller('AppController', ['$location', App]);
 
+function App($location) {
     var app = this;
+    app.$location = $location;
+}
 
-    app.goHome = function() {
-        $location.path('/');
-    }
+App.prototype.goHome = function() {
+    this.$location.path('/');
+}
 
-    app.goToTracking = function() {
-        $location.path('/tracking');
-    }
+App.prototype.goToTracking = function() {
+    this.$location.path('/track');
+}
 
-    app.goToReports = function() {
-        $location.path('/reports');
-    }
+App.prototype.goToReports = function() {
+    this.$location.path('/reports');
+}
 
-    app.goToPreferences = function() {
-        $location.path('/prefs');
-    }
-
-}]);
+App.prototype.goToPreferences = function() {
+    this.$location.path('/prefs');
+}

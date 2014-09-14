@@ -28,18 +28,18 @@ slickbudget.config(['$compileProvider', '$controllerProvider','$filterProvider',
 
     $routeProvider.when('/track', {
         templateUrl: 'views/track.html',
-        controller: 'TrackingController',
+        controller: 'TrackingController as track',
     });
 
 
     $routeProvider.when('/reports', {
         templateUrl: 'views/reports.html',
-        controller: 'ReportsController',
+        controller: 'ReportsController as reports',
     });
 
     $routeProvider.when('/preferences', {
         templateUrl: 'views/prefs.html',
-        controller: 'PrefsController',
+        controller: 'PrefsController as prefs',
     });
 
     $routeProvider.otherwise({redirectTo: '/'});
