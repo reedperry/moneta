@@ -1,15 +1,48 @@
 <div>
     <ng-form role="form" novalidate>
-        <label class="control-label">New Expense</label>
-        <input type="number" ng-model="track.newExpense"/>
-        <label class="control-label">New Credit</label>
-        <input type="number" ng-model="track.newCredit"/>
+        <div class="row">
+            <div class="col-xs-2 form-group">
+                <label class="control-label">Amount</label>
+                <input type="text" class="form-control" ng-model="track.newExpenseAmount"/>
+            </div>
+            <div class="col-xs-2 form-group">
+                <label class="control-label">Comment</label>
+                <input type="text" class="form-control" ng-model="track.newExpenseComment"/>
+            </div>
+            <div class="col-xs-2 form-group">
+                <label class="control-label">Date</label>
+                <input type="date" class="form-control" ng-model="track.newExpenseDate"/>
+            </div>
+            <button class="btn btn-danger" ng-click="track.addExpense()">Add Expense</button>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-2 form-group">
+                <label class="control-label">Amount</label>
+                <input type="text" class="form-control" ng-model="track.newCreditAmount"/>
+            </div>
+            <div class="col-xs-2 form-group">
+                <label class="control-label">Comment</label>
+                <input type="text" class="form-control" ng-model="track.newCreditComment"/>
+            </div>
+            <div class="col-xs-2 form-group">
+                <label class="control-label">Date</label>
+                <input type="date" class="form-control" ng-model="track.newCreditDate"/>
+            </div>
+            <button class="btn btn-success" ng-click="track.addCredit()">Add Credit</button>
+        </div>
     </ng-form>
 
     <div>
-        Expenses
-        <p ng-repeat="expense in track.expenses">
-            {{expense.amount | currency}} | {{expense.comments}} | {{expense.date | date : 'short'}}
+        <h4>Expenses</h4>
+        <p class="animate-fade" ng-repeat="expense in track.getExpenses()">
+            {{expense.amount | currency}} | {{expense.comment}} | {{expense.date | date : 'short'}}
         </p>
+        <h5>Total: {{track.getTotalExpenses() | currency}}</h5>
+        <h4>Credits</h4>
+        <p class="animate-fade" ng-repeat="credit in track.getCredits()">
+            {{credit.amount | currency}} | {{credit.comment}} | {{credit.date | date : 'short'}}
+        </p>
+        <h5>Total: {{track.getTotalCredits() | currency}}</h5>
     </div>
 </div>

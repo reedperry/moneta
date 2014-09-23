@@ -6,24 +6,24 @@ html {
     padding: 10px;
 }
 
-.view-animate.ng-enter, .view-animate.ng-leave {
+.animate-fade.ng-enter, .view-animate.ng-leave {
     -webkit-transition: 0.2s linear;
     transition: 0.2s linear;
     position: absolute;
 }
 
-.view-animate.ng-enter {
+.animate-fade.ng-enter {
     opacity: 0;
 }
 
-.view-animate.ng-enter.ng-enter-active {
+.animate-fade.ng-enter.ng-enter-active {
     opacity: 1;
 }
 
-.view-animate.ng-leave {
+.animate-fade.ng-leave {
     opacity: 1;
 }
 
-.view-animate.ng-leave.ng-leave-active {
+.animate-fade.ng-leave.ng-leave-active {
     opacity: 0;
 }
