@@ -1,1 +1,1 @@
-SlickBudget is a project for personal budget management and tracking.
+Moneta is a project for personal expense/budget tracking.

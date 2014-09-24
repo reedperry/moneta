@@ -1,22 +1,22 @@
-var filters = angular.module('slickbudget.filters', []);
-var services = angular.module('slickbudget.services', ['slickbudget.filters']);
-var directives = angular.module('slickbudget.directives', ['slickbudget.services', 'slickbudget.filters']);
-var controllers = angular.module('slickbudget.controllers', ['slickbudget.services', 'slickbudget.directives', 'slickbudget.filters']);
+var filters = angular.module('moneta.filters', []);
+var services = angular.module('moneta.services', ['moneta.filters']);
+var directives = angular.module('moneta.directives', ['moneta.services', 'moneta.filters']);
+var controllers = angular.module('moneta.controllers', ['moneta.services', 'moneta.directives', 'moneta.filters']);
 
-var slickbudget = angular.module('slickbudget', ['ngAnimate', 'ngRoute', 'ngTouch', 'slickbudget.filters', 
-        'slickbudget.services', 'slickbudget.directives', 'slickbudget.controllers']);
+var moneta = angular.module('moneta', ['ngAnimate', 'ngRoute', 'ngTouch', 'moneta.filters', 
+        'moneta.services', 'moneta.directives', 'moneta.controllers']);
 
-slickbudget.config(['$compileProvider', '$controllerProvider','$filterProvider', '$locationProvider', 
+moneta.config(['$compileProvider', '$controllerProvider','$filterProvider', '$locationProvider', 
         '$logProvider', '$provide', '$routeProvider',
         function($compileProvider, $controllerProvider, $filterProvider, $locationProvider, 
             $logProvider, $provide, $routeProvider) {
 
     // Available for scripts loaded after the application has been bootstrapped
-    slickbudget.compileProvider = $compileProvider;
-    slickbudget.controllerProvider = $controllerProvider;
-    slickbudget.filterProvider = $filterProvider;
-    slickbudget.provide = $provide;
-    slickbudget.routeProvider = $routeProvider;
+    moneta.compileProvider = $compileProvider;
+    moneta.controllerProvider = $controllerProvider;
+    moneta.filterProvider = $filterProvider;
+    moneta.provide = $provide;
+    moneta.routeProvider = $routeProvider;
 
     $logProvider.debugEnabled(false);
     $locationProvider.html5Mode(false);
