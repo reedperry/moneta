@@ -1,18 +1,12 @@
 package moneta
 
 import (
+	"appengine"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io"
 	"net/http"
-	"time"
 )
-
-type Expense struct {
-	Amount  int64     `json:"amount"`
-	Comment string    `json:"comment"`
-	Date    time.Time `json:"date"`
-}
 
 func init() {
 	http.HandleFunc("/data", crud)
@@ -20,24 +14,38 @@ func init() {
 
 func crud(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "POST":
-		data, err := readRequest(r.Body)
-		if err == nil {
-			err = json.NewEncoder(w).Encode(data)
-		}
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
 	case "GET":
 		fmt.Fprint(w, "Hello!")
-		return
+	case "POST":
+		doPost(w, r)
 	}
 }
 
-func readRequest(r io.ReadCloser) (*Expense, error) {
-	defer r.Close()
-	var expense Expense
-	err := json.NewDecoder(r).Decode(&expense)
-	return &expense, err
+func doPost(w http.ResponseWriter, r *http.Request) {
+
+	c := appengine.NewContext(r)
+	data, err := getRequestData(r)
+	if err == nil {
+		for k, v := range *data {
+			if k == "kind" {
+				kind := v
+				c.Infof("Data has kind %s", kind)
+			}
+		}
+	} else {
+		c.Errorf(err.Error())
+	}
+}
+
+func getRequestData(r *http.Request) (*map[string]interface{}, error) {
+	defer r.Body.Close()
+
+	var data map[string]interface{}
+
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		return nil, errors.New("Couldn't get valid JSON object from request body.")
+	}
+
+	return &data, nil
 }
