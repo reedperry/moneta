@@ -1,7 +1,7 @@
 <div>
     <ng-form role="form" novalidate>
         <div class="row">
-            <div class="col-xs-2 form-group">
+            <div class="col-xs-2">
                 <label class="control-label">Amount</label>
                 <input type="text" class="form-control" ng-model="track.newExpenseAmount"/>
             </div>
@@ -13,7 +13,7 @@
                 <label class="control-label">Date</label>
                 <input type="date" class="form-control" ng-model="track.newExpenseDate"/>
             </div>
-            <button class="btn btn-danger" ng-click="track.addExpense()">Add Expense</button>
+            <button class="btn btn-danger" ng-disabled="!track.newExpenseAmount" ng-click="track.addExpense()">Add Expense</button>
         </div>
 
         <div class="row">
@@ -29,7 +29,7 @@
                 <label class="control-label">Date</label>
                 <input type="date" class="form-control" ng-model="track.newCreditDate"/>
             </div>
-            <button class="btn btn-success" ng-click="track.addCredit()">Add Credit</button>
+            <button class="btn btn-success" ng-disabled="!track.newCreditAmount" ng-click="track.addCredit()">Add Credit</button>
         </div>
     </ng-form>
 
