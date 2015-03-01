@@ -16,9 +16,10 @@ services.factory('Tracker', function() {
             if (!expense) { return; }
 
             if (typeof expense === 'object') {
+                expense.amount = parseFloat(expense.amount);
                 expenses.push(expense);
             } else if (typeof expense === 'number') {
-                var expenseObj = { amount: expense };
+                var expenseObj = { amount: parseFloat(expense) };
                 expenses.push(expenseObj);
             }
         },
@@ -34,9 +35,10 @@ services.factory('Tracker', function() {
             if (!credit) { return; }
 
             if (typeof credit === 'object') {
+                credit.amount = parseFloat(credit.amount);
                 credits.push(credit);
             } else if (typeof credit === 'number') {
-                var creditObj = { amount: credit };
+                var creditObj = { amount: parseFloat(credit) };
                 credits.push(creditObj);
             }
         },

@@ -1,35 +1,27 @@
 <div>
     <ng-form role="form" novalidate>
         <div class="row">
-            <div class="col-xs-2">
+            <div class="col-md-2 form-group">
                 <label class="control-label">Amount</label>
-                <input type="text" class="form-control" ng-model="track.newExpenseAmount"/>
+                <div class="input-group">
+                    <div class="input-group-addon">$</div>
+                    <input type="text" class="form-control" ng-model="track.amount"/>
+                </div>
             </div>
-            <div class="col-xs-2 form-group">
+            <div class="col-md-4 form-group">
                 <label class="control-label">Comment</label>
-                <input type="text" class="form-control" ng-model="track.newExpenseComment"/>
+                <input type="text" class="form-control" ng-model="track.comment"/>
             </div>
-            <div class="col-xs-2 form-group">
+            <div class="col-md-3 form-group">
                 <label class="control-label">Date</label>
-                <input type="date" class="form-control" ng-model="track.newExpenseDate"/>
+                <input type="date" class="form-control" ng-model="track.date"/>
             </div>
-            <button class="btn btn-danger" ng-disabled="!track.newExpenseAmount" ng-click="track.addExpense()">Add Expense</button>
         </div>
-
         <div class="row">
-            <div class="col-xs-2 form-group">
-                <label class="control-label">Amount</label>
-                <input type="text" class="form-control" ng-model="track.newCreditAmount"/>
+            <div class="col-md-4">
+                <button class="btn btn-danger btn-lg" ng-disabled="!track.amount" ng-click="track.addExpense()">Add Expense</button>
+                <button class="btn btn-success btn-lg" ng-disabled="!track.amount" ng-click="track.addCredit()">Add Credit</button>
             </div>
-            <div class="col-xs-2 form-group">
-                <label class="control-label">Comment</label>
-                <input type="text" class="form-control" ng-model="track.newCreditComment"/>
-            </div>
-            <div class="col-xs-2 form-group">
-                <label class="control-label">Date</label>
-                <input type="date" class="form-control" ng-model="track.newCreditDate"/>
-            </div>
-            <button class="btn btn-success" ng-disabled="!track.newCreditAmount" ng-click="track.addCredit()">Add Credit</button>
         </div>
     </ng-form>
 

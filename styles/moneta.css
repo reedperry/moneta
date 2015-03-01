@@ -7,8 +7,8 @@ html {
 }
 
 .animate-fade.ng-enter, .view-animate.ng-leave {
-    -webkit-transition: 0.2s linear;
-    transition: 0.2s linear;
+    -webkit-transition: 0.1s linear;
+    transition: 0.1s linear;
     position: absolute;
 }
 

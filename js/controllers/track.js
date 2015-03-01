@@ -1,18 +1,21 @@
 controllers.controller('TrackingController', ['$location', 'Tracker', function TrackingControllerFactory($location, Tracker) {
 
     var track = this;
+    var CREDIT = 'credit',
+        EXPENSE = 'expense';
 
     track.getExpenses = Tracker.getExpenses;
     track.getTotalExpenses = Tracker.totalExpenses;
 
     track.addExpense = function() {
         var expense = {
-            amount: track.newExpenseAmount,
-            comment: track.newExpenseComment,
-            date: track.newExpenseDate,
+            amount: track.amount,
+            comment: track.comment,
+            date: track.date,
+            type: EXPENSE
         };
         Tracker.addExpense(expense);
-        track.clearExpenseEntry();
+        track.clearEntry();
     };
 
     track.getCredits = Tracker.getCredits;
@@ -20,24 +23,20 @@ controllers.controller('TrackingController', ['$location', 'Tracker', function T
 
     track.addCredit = function() {
         var credit = {
-            amount: track.newCreditAmount,
-            comment: track.newCreditComment,
-            date: track.newCreditDate,
+            amount: track.amount,
+            comment: track.comment,
+            date: track.date,
+            type: CREDIT
         };
         Tracker.addCredit(credit);
-        track.clearCreditEntry();
+        track.clearEntry();
     };
     
-    track.clearExpenseEntry = function() {
-        track.newExpenseAmount = null;
-        track.newExpenseComment = null;
-        track.newExpenseDate = null;
+    track.clearEntry = function() {
+        track.amount = null;
+        track.comment = null;
+        track.date = new Date();
     };
 
-    track.clearCreditEntry = function() {
-        track.newCreditAmount = null;
-        track.newCreditComment = null;
-        track.newCreditDate = null;
-    };
-
+    track.clearEntry();
 }]);
