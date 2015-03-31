@@ -4,13 +4,6 @@ runtime: go
 api_version: go1
 
 handlers:
-- url: /data
-  script: _go_app
-
-- url: /
-  static_files: index.html
-  upload: index\.html
-
 - url: /js
   static_dir: js
 
@@ -19,3 +12,6 @@ handlers:
 
 - url: /views
   static_dir: views
+
+- url: /.*
+  script: _go_app

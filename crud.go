@@ -17,17 +17,47 @@ const EVENT_KIND = "event"
 
 func init() {
 	http.HandleFunc("/data", crud)
+	http.HandleFunc("/", serveApp)
+}
+
+func serveApp(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	if err := authorize(c); err != nil {
+		loginURL, _ := user.LoginURL(c, "/")
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		fmt.Fprintf(w, `You are not signed in! Sign in <a href="%s">here</a>.`, loginURL)
+		return
+	}
+
+	if r.Method != "GET" {
+		fmt.Fprint(w, "Method not supported!")
+		return
+	}
+
+	content, err := ioutil.ReadFile("index.html")
+	if err != nil {
+		fmt.Fprint(w, "index.html not found!")
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	fmt.Fprint(w, string(content))
 }
 
 func crud(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-	//err := authorize(c)
+	if err := authorize(c); err != nil {
+		fmt.Fprintf(w, "Authorization error: %v", err)
+		return
+	}
 
 	switch r.Method {
 	case "GET":
 		doGet(w, r, c)
 	case "POST":
 		doPost(w, r, c)
+	default:
+		fmt.Fprint(w, "Method not supported!")
 	}
 }
 
@@ -170,7 +200,7 @@ func readQParams(r *http.Request, qParams *QParams) error {
 
 func assertValidKind(kind string, c appengine.Context) error {
 	if kind != "expense" && kind != "credit" {
-		return errors.New("Invalid kind: " + kind)
+		return errors.New("Invalid kind: '" + kind + "'")
 	} else {
 		c.Infof("Data has kind %s", kind)
 		return nil
