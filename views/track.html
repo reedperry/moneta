@@ -19,8 +19,8 @@
         </div>
         <div class="row">
             <div class="col-md-4">
-                <button class="btn btn-danger btn-lg" ng-disabled="!track.amount" ng-click="track.addExpense()">Add Expense</button>
-                <button class="btn btn-success btn-lg" ng-disabled="!track.amount" ng-click="track.addCredit()">Add Credit</button>
+                <button class="btn btn-danger btn-md" ng-disabled="!track.amount" ng-click="track.addExpense()">Add Expense</button>
+                <button class="btn btn-success btn-md" ng-disabled="!track.amount" ng-click="track.addIncome()">Add Income</button>
             </div>
         </div>
     </ng-form>
@@ -31,10 +31,10 @@
             {{expense.amount | currency}} | {{expense.comment}} | {{expense.date | date : 'short'}}
         </p>
         <h5>Total: {{track.getTotalExpenses() | currency}}</h5>
-        <h4>Credits</h4>
-        <p class="animate-fade" ng-repeat="credit in track.getCredits()">
-            {{credit.amount | currency}} | {{credit.comment}} | {{credit.date | date : 'short'}}
+        <h4>Incomes</h4>
+        <p class="animate-fade" ng-repeat="income in track.getIncomes()">
+            {{income.amount | currency}} | {{income.comment}} | {{income.date | date : 'short'}}
         </p>
-        <h5>Total: {{track.getTotalCredits() | currency}}</h5>
+        <h5>Total: {{track.getTotalIncomes() | currency}}</h5>
     </div>
 </div>

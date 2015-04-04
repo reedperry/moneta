@@ -83,7 +83,7 @@ func doGet(w http.ResponseWriter, r *http.Request, c appengine.Context) {
 		handleError(w, err, &c)
 	}
 
-	resp := response{"", "", results}
+	resp := response{true, "", "", results}
 	if json, err := json.Marshal(resp); err == nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(json)
@@ -97,9 +97,15 @@ func doPost(w http.ResponseWriter, r *http.Request, c appengine.Context) {
 	entity := new(event)
 	if err := readEntity(r, entity); err == nil {
 		if err := assertValidKind(entity.Kind, c); err == nil {
+			if entity.Date.IsZero() {
+				entity.Date = time.Now()
+			}
+			u := user.Current(c)
+			entity.User = u.Email
+
 			key := datastore.NewIncompleteKey(c, EVENT_KIND, nil)
 			if k, err := datastore.Put(c, key, entity); err == nil {
-				resp := response{k.String(), "", nil}
+				resp := response{true, k.String(), "", nil}
 				if json, err := json.Marshal(resp); err == nil {
 					w.Header().Set("Content-Type", "application/json")
 					w.Write(json)
@@ -199,7 +205,7 @@ func readQParams(r *http.Request, qParams *QParams) error {
 }
 
 func assertValidKind(kind string, c appengine.Context) error {
-	if kind != "expense" && kind != "credit" {
+	if kind != "expense" && kind != "income" {
 		return errors.New("Invalid kind: '" + kind + "'")
 	} else {
 		c.Infof("Data has kind %s", kind)
@@ -231,6 +237,7 @@ type QParams struct {
 }
 
 type response struct {
+	Ok    bool    `json:"ok"`
 	Key   string  `json:"key"`
 	Error string  `json:"error"`
 	Data  []event `json:"data"`

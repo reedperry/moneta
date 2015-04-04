@@ -3,6 +3,6 @@ controllers.controller('ReportsController', ['$location', 'Tracker', function Re
     var reports = this;
 
     reports.getTotalExpenses = Tracker.totalExpenses;
-    reports.getTotalCredits = Tracker.totalCredits;
+    reports.getTotalIncomes = Tracker.totalIncomes;
 
 }]);

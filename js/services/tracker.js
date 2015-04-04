@@ -1,7 +1,7 @@
 services.factory('Tracker', function() {
 
     var expenses = [],
-        credits = [];
+        incomes = [];
 
     var tracker = {
 
@@ -25,21 +25,21 @@ services.factory('Tracker', function() {
         },
 
         /*
-         * Add a new credit.
-         * Takes a numerical value, or an object containing details of the credit:
+         * Add a new income.
+         * Takes a numerical value, or an object containing details of the income:
          *   amount: number
          *   comment: string
          *   date: date
          */
-        addCredit: function(credit) {
-            if (!credit) { return; }
+        addIncome: function(income) {
+            if (!income) { return; }
 
-            if (typeof credit === 'object') {
-                credit.amount = parseFloat(credit.amount);
-                credits.push(credit);
-            } else if (typeof credit === 'number') {
-                var creditObj = { amount: parseFloat(credit) };
-                credits.push(creditObj);
+            if (typeof income === 'object') {
+                income.amount = parseFloat(income.amount);
+                incomes.push(income);
+            } else if (typeof income === 'number') {
+                var incomeObj = { amount: parseFloat(income) };
+                incomes.push(incomeObj);
             }
         },
 
@@ -47,8 +47,8 @@ services.factory('Tracker', function() {
             return expenses;
         },
 
-        getCredits: function() {
-            return credits;
+        getIncomes: function() {
+            return incomes;
         },
 
         totalExpenses: function() {
@@ -57,8 +57,8 @@ services.factory('Tracker', function() {
             }, 0);
         },
 
-        totalCredits: function() {
-            return credits.reduce(function(prev, current) {
+        totalIncomes: function() {
+            return incomes.reduce(function(prev, current) {
                 return prev + current.amount;
             }, 0);
         },

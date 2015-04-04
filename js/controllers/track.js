@@ -1,7 +1,7 @@
-controllers.controller('TrackingController', ['$location', 'Tracker', function TrackingControllerFactory($location, Tracker) {
+controllers.controller('TrackingController', ['$location', 'DB', 'Tracker', function TrackingControllerFactory($location, DB, Tracker) {
 
     var track = this;
-    var CREDIT = 'credit',
+    var INCOME = 'income',
         EXPENSE = 'expense';
 
     track.getExpenses = Tracker.getExpenses;
@@ -12,26 +12,28 @@ controllers.controller('TrackingController', ['$location', 'Tracker', function T
             amount: track.amount,
             comment: track.comment,
             date: track.date,
-            type: EXPENSE
+            kind: EXPENSE
         };
+        DB.storeExpense(expense);
         Tracker.addExpense(expense);
         track.clearEntry();
     };
 
-    track.getCredits = Tracker.getCredits;
-    track.getTotalCredits = Tracker.totalCredits;
+    track.getIncomes = Tracker.getIncomes;
+    track.getTotalIncomes = Tracker.totalIncomes;
 
-    track.addCredit = function() {
-        var credit = {
+    track.addIncome = function() {
+        var income = {
             amount: track.amount,
             comment: track.comment,
             date: track.date,
-            type: CREDIT
+            kind: INCOME
         };
-        Tracker.addCredit(credit);
+        DB.storeIncome(income);
+        Tracker.addIncome(income);
         track.clearEntry();
     };
-    
+
     track.clearEntry = function() {
         track.amount = null;
         track.comment = null;
