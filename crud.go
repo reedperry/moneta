@@ -22,7 +22,7 @@ func init() {
 
 func serveApp(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-	if err := authorize(c); err != nil {
+	if _, err := authorize(c); err != nil {
 		loginURL, _ := user.LoginURL(c, "/")
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprintf(w, `You are not signed in! Sign in <a href="%s">here</a>.`, loginURL)
@@ -46,22 +46,23 @@ func serveApp(w http.ResponseWriter, r *http.Request) {
 
 func crud(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-	if err := authorize(c); err != nil {
+	u, err := authorize(c)
+	if err != nil {
 		fmt.Fprintf(w, "Authorization error: %v", err)
 		return
 	}
 
 	switch r.Method {
 	case "GET":
-		doGet(w, r, c)
+		doGet(w, r, c, u)
 	case "POST":
-		doPost(w, r, c)
+		doPost(w, r, c, u)
 	default:
 		fmt.Fprint(w, "Method not supported!")
 	}
 }
 
-func doGet(w http.ResponseWriter, r *http.Request, c appengine.Context) {
+func doGet(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.User) {
 	qParams := new(QParams)
 	if err := readQParams(r, qParams); err != nil {
 		fmt.Fprintf(w, "Invalid query request: %v", err)
@@ -74,7 +75,7 @@ func doGet(w http.ResponseWriter, r *http.Request, c appengine.Context) {
 	}
 
 	query := datastore.NewQuery(EVENT_KIND)
-	query = applyFilters(qParams, query)
+	query = applyFilters(qParams, query, c, u)
 	results := make([]event, 0, 10)
 	keys, err := query.GetAll(c, &results)
 	if err == nil {
@@ -92,7 +93,7 @@ func doGet(w http.ResponseWriter, r *http.Request, c appengine.Context) {
 	}
 }
 
-func doPost(w http.ResponseWriter, r *http.Request, c appengine.Context) {
+func doPost(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.User) {
 	entity := new(event)
 	if err := readEntity(r, entity); err != nil {
 		handleError(w, err, &c)
@@ -106,7 +107,6 @@ func doPost(w http.ResponseWriter, r *http.Request, c appengine.Context) {
 		entity.Date = time.Now()
 	}
 
-	u := user.Current(c)
 	entity.User = u.Email
 
 	key := datastore.NewIncompleteKey(c, EVENT_KIND, nil)
@@ -146,10 +146,14 @@ func readEntity(r *http.Request, entity *event) error {
 	return nil
 }
 
-func applyFilters(qParams *QParams, query *datastore.Query) *datastore.Query {
+func applyFilters(qParams *QParams, query *datastore.Query, c appengine.Context, u *user.User) *datastore.Query {
 
 	query = query.Filter("Kind =", qParams.Kind)
-	query = query.Filter("User =", qParams.User)
+	if user.IsAdmin(c) && qParams.User != "" {
+		query = query.Filter("User =", qParams.User)
+	} else {
+		query = query.Filter("User =", u.Email)
+	}
 
 	if qParams.Amount != 0 {
 		query = query.Filter("Amount", qParams.Amount)
@@ -173,11 +177,6 @@ func readQParams(r *http.Request, qParams *QParams) error {
 	qParams.Kind = r.FormValue("kind")
 	if qParams.Kind == "" {
 		return errors.New("Query has no 'kind'!")
-	}
-
-	qParams.User = r.FormValue("user")
-	if qParams.User == "" {
-		return errors.New("Query has no 'user'!")
 	}
 
 	if r.FormValue("amount") != "" {
@@ -209,6 +208,12 @@ func readQParams(r *http.Request, qParams *QParams) error {
 		}
 	}
 
+	/*
+	 * Read this parameter if present, but will only be used if an admin
+	 * is making the request.
+	 */
+	qParams.User = r.FormValue("user")
+
 	return nil
 }
 
@@ -221,11 +226,12 @@ func assertValidKind(kind string, c appengine.Context) error {
 	}
 }
 
-func authorize(c appengine.Context) error {
+func authorize(c appengine.Context) (*user.User, error) {
 	if u := user.Current(c); u == nil {
-		return errors.New("User not logged in!")
+		return nil, errors.New("User not logged in!")
+	} else {
+		return u, nil
 	}
-	return nil
 }
 
 type event struct {
