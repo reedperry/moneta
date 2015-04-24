@@ -29,11 +29,15 @@
         <h4>Expenses</h4>
         <p class="animate-fade" ng-repeat="expense in track.getExpenses()">
             {{expense.amount | currency}} | {{expense.comment}} | {{expense.date | date : 'short'}}
+            <span ng-if="expense.saveError" class="label label-danger">Not synced! Try again.</span>
+            <span ng-if="expense.saveSuccess" class="label label-success">Saved</span>
         </p>
         <h5>Total: {{track.getTotalExpenses() | currency}}</h5>
         <h4>Incomes</h4>
         <p class="animate-fade" ng-repeat="income in track.getIncomes()">
             {{income.amount | currency}} | {{income.comment}} | {{income.date | date : 'short'}}
+            <span ng-if="income.saveError" class="label label-danger">Not synced! Try again.</span>
+            <span ng-if="income.saveSuccess" class="label label-success">Saved</span>
         </p>
         <h5>Total: {{track.getTotalIncomes() | currency}}</h5>
     </div>

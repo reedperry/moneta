@@ -20,15 +20,25 @@ services.factory('DB', ['$http', '$log', function($http, $log) {
             return;
         }
 
-        return $http.post(CRUD_URL, event).
-            success(function(data, status) {
-              console.log('Stored %s successully!', kind);
-              console.log(data);
-            }).
-            error(function(data, status) {
-              console.log('Failed to store %s - HTTP %s', kind, status);
-              console.log(data);
-            });
+        return $http.post(CRUD_URL, event);
+    }
+
+    function getEvents(user, kind) {
+      if (!user) {
+        $log.log('No user to get events.');
+        return;
+      }
+      var url = CRUD_URL + '?user=' + user;
+      if (kind) {
+        url += '&kind=' + kind;
+      }
+      return $http.get(url)
+        .success(function(data, status) {
+          console.log('Got events: %O', data);
+        })
+        .error(function(data, status) {
+          console.log('HTTP %s: Failed to get events: %O', status, data);
+        });
     }
 
     var db = {
@@ -39,6 +49,14 @@ services.factory('DB', ['$http', '$log', function($http, $log) {
 
         storeIncome: function(income) {
           return storeEvent(income, INCOME_KIND);
+        },
+
+        getExpenses: function(user) {
+          return getEvents(user, EXPENSE_KIND);
+        },
+
+        getIncomes: function(user) {
+          return getEvents(user, INCOME_KIND);
         }
     };
 

@@ -1,8 +1,14 @@
-controllers.controller('TrackingController', ['$location', 'DB', 'Tracker', function TrackingControllerFactory($location, DB, Tracker) {
+controllers.controller('TrackingController', ['$location', 'DB', 'Tracker',
+  function TrackingControllerFactory($location, DB, Tracker) {
 
     var track = this;
     var INCOME = 'income',
         EXPENSE = 'expense';
+
+    DB.getExpenses('test@example.com')
+      .success(function(data) {
+        console.log('expenses: %O', data)
+        });
 
     track.getExpenses = Tracker.getExpenses;
     track.getTotalExpenses = Tracker.totalExpenses;
@@ -14,9 +20,26 @@ controllers.controller('TrackingController', ['$location', 'DB', 'Tracker', func
             date: track.date,
             kind: EXPENSE
         };
-        DB.storeExpense(expense);
+
         Tracker.addExpense(expense);
-        track.clearEntry();
+
+        DB.storeExpense(expense)
+          .success(function(data, status) {
+            if (data.ok) {
+                console.log('Stored %s successully!', expense.kind);
+                Tracker.saveSuccess(Tracker.findExpense(expense));
+            } else {
+                console.log('Failed to store expense!');
+                Tracker.saveError(Tracker.findExpense(expense));
+            }
+            console.log(data);
+          })
+          .error(function(data, status) {
+            console.log('Failed to store expense - HTTP %s', status);
+            console.log(data);
+          });
+
+        track.clearForm();
     };
 
     track.getIncomes = Tracker.getIncomes;
@@ -29,16 +52,33 @@ controllers.controller('TrackingController', ['$location', 'DB', 'Tracker', func
             date: track.date,
             kind: INCOME
         };
-        DB.storeIncome(income);
+
         Tracker.addIncome(income);
-        track.clearEntry();
+
+        DB.storeIncome(income)
+          .success(function(data, status) {
+            if (data.ok) {
+                console.log('Stored %s successully!', income.kind);
+                Tracker.saveSuccess(Tracker.findIncome(income));
+            } else {
+                console.log('Failed to store income!');
+                Tracker.saveError(Tracker.findIncome(income));
+            }
+            console.log(data);
+          })
+          .error(function(data, status) {
+            console.log('Failed to store income - HTTP %s', status);
+            console.log(data);
+          });
+
+        track.clearForm();
     };
 
-    track.clearEntry = function() {
+    track.clearForm = function() {
         track.amount = null;
         track.comment = null;
         track.date = new Date();
     };
 
-    track.clearEntry();
+    track.clearForm();
 }]);

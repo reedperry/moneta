@@ -93,34 +93,36 @@ func doGet(w http.ResponseWriter, r *http.Request, c appengine.Context) {
 }
 
 func doPost(w http.ResponseWriter, r *http.Request, c appengine.Context) {
-
 	entity := new(event)
-	if err := readEntity(r, entity); err == nil {
-		if err := assertValidKind(entity.Kind, c); err == nil {
-			if entity.Date.IsZero() {
-				entity.Date = time.Now()
-			}
-			u := user.Current(c)
-			entity.User = u.Email
-
-			key := datastore.NewIncompleteKey(c, EVENT_KIND, nil)
-			if k, err := datastore.Put(c, key, entity); err == nil {
-				resp := response{true, k.String(), "", nil}
-				if json, err := json.Marshal(resp); err == nil {
-					w.Header().Set("Content-Type", "application/json")
-					w.Write(json)
-				} else {
-					handleError(w, err, &c)
-				}
-			} else {
-				handleError(w, err, &c)
-			}
-		} else {
-			handleError(w, err, &c)
-		}
-	} else {
+	if err := readEntity(r, entity); err != nil {
 		handleError(w, err, &c)
 	}
+
+	if err := assertValidKind(entity.Kind, c); err != nil {
+		handleError(w, err, &c)
+	}
+
+	if entity.Date.IsZero() {
+		entity.Date = time.Now()
+	}
+
+	u := user.Current(c)
+	entity.User = u.Email
+
+	key := datastore.NewIncompleteKey(c, EVENT_KIND, nil)
+	k, err := datastore.Put(c, key, entity)
+	if err != nil {
+		handleError(w, err, &c)
+	}
+
+	resp := response{true, k.String(), "", nil}
+	text, err := json.Marshal(resp)
+	if err != nil {
+		handleError(w, err, &c)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(text)
 }
 
 func handleError(w http.ResponseWriter, err error, c *appengine.Context) {
@@ -146,13 +148,14 @@ func readEntity(r *http.Request, entity *event) error {
 
 func applyFilters(qParams *QParams, query *datastore.Query) *datastore.Query {
 
-	query.Filter("Kind", qParams.Kind)
+	query = query.Filter("Kind =", qParams.Kind)
+	query = query.Filter("User =", qParams.User)
 
 	if qParams.Amount != 0 {
-		query = query.Filter("Amount =", qParams.Amount)
+		query = query.Filter("Amount", qParams.Amount)
 	}
 	if qParams.Comment != "" {
-		query = query.Filter("Comment =", qParams.Comment)
+		query = query.Filter("Comment", qParams.Comment)
 	}
 	if !qParams.MinDate.IsZero() {
 		query = query.Filter("Date >=", qParams.MinDate)
@@ -170,6 +173,11 @@ func readQParams(r *http.Request, qParams *QParams) error {
 	qParams.Kind = r.FormValue("kind")
 	if qParams.Kind == "" {
 		return errors.New("Query has no 'kind'!")
+	}
+
+	qParams.User = r.FormValue("user")
+	if qParams.User == "" {
+		return errors.New("Query has no 'user'!")
 	}
 
 	if r.FormValue("amount") != "" {
@@ -229,6 +237,7 @@ type event struct {
 }
 
 type QParams struct {
+	User    string    `json:"user"`
 	Kind    string    `json:"kind"`
 	Amount  float64   `json:"amount"`
 	Comment string    `json:"comment"`

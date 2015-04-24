@@ -17,9 +17,13 @@ services.factory('Tracker', function() {
 
             if (typeof expense === 'object') {
                 expense.amount = parseFloat(expense.amount);
+                if (!expense.date) {
+                  expense.date = new Date();
+                }
                 expenses.push(expense);
             } else if (typeof expense === 'number') {
                 var expenseObj = { amount: parseFloat(expense) };
+                expenseObj.date = new Date();
                 expenses.push(expenseObj);
             }
         },
@@ -36,9 +40,13 @@ services.factory('Tracker', function() {
 
             if (typeof income === 'object') {
                 income.amount = parseFloat(income.amount);
+                if (!income.date) {
+                  income.date = new Date();
+                }
                 incomes.push(income);
             } else if (typeof income === 'number') {
                 var incomeObj = { amount: parseFloat(income) };
+                incomeObj.date = new Date();
                 incomes.push(incomeObj);
             }
         },
@@ -49,6 +57,24 @@ services.factory('Tracker', function() {
 
         getIncomes: function() {
             return incomes;
+        },
+
+        findExpense: function(expense) {
+            match = _.filter(expenses, _.matches(expense));
+            if (_.isEmpty(match)) {
+              return null;
+            } else {
+              return match[0];
+            }
+        },
+
+        findIncome: function(income) {
+            match = _.filter(incomes, _.matches(income));
+            if (_.isEmpty(match)) {
+              return null;
+            } else {
+              return match[0];
+            }
         },
 
         totalExpenses: function() {
@@ -62,6 +88,21 @@ services.factory('Tracker', function() {
                 return prev + current.amount;
             }, 0);
         },
+
+        saveError: function(event) {
+            if (!event) {
+                return;
+            }
+            event.saveError = true;
+        },
+
+        saveSuccess: function(event) {
+            if (!event) {
+                return;
+            }
+            event.saveError = false;
+            event.saveSuccess = true;
+        }
     };
 
     return tracker;
