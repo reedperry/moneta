@@ -25,20 +25,28 @@
         </div>
     </ng-form>
 
-    <div>
-        <h4>Expenses</h4>
-        <p class="animate-fade" ng-repeat="expense in track.getExpenses()">
-            {{expense.amount | currency}} | {{expense.comment}} | {{expense.date | date : 'short'}}
-            <span ng-if="expense.saveError" class="label label-danger">Not synced! Try again.</span>
-            <span ng-if="expense.saveSuccess" class="label label-success">Saved</span>
-        </p>
-        <h5>Total: {{track.getTotalExpenses() | currency}}</h5>
-        <h4>Incomes</h4>
-        <p class="animate-fade" ng-repeat="income in track.getIncomes()">
-            {{income.amount | currency}} | {{income.comment}} | {{income.date | date : 'short'}}
+    <div class="row">
+      <div class="col-md-6">
+        <h3>Expenses</h3>
+        <p class="text-danger"><strong>Total: {{track.getTotalExpenses() | currency}}</strong></p>
+        <div class="row animate-fade" ng-repeat="expense in track.getExpenses()">
+            <span class="col-md-2">{{expense.amount | currency}}</span>
+            <span class="col-md-6">{{expense.comment}}</span>
+            <span class="col-md-3">{{expense.date | date : 'short'}}</span>
+            <span ng-if="expense.saveError" class="col-md-1 label label-danger">Not synced! Try again.</span>
+            <span ng-if="expense.saveSuccess" class="col-md-1 label label-success">Saved</span>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h3>Incomes</h3>
+        <p class="text-success"><strong>Total: {{track.getTotalIncomes() | currency}}</strong></p>
+        <div class="row animate-fade" ng-repeat="income in track.getIncomes()">
+            <span class="col-md-2">{{income.amount | currency}}</span>
+            <span class="col-md-6">{{income.comment}}</span>
+            <span class="col-md-3">{{income.date | date : 'short'}}</span>
             <span ng-if="income.saveError" class="label label-danger">Not synced! Try again.</span>
             <span ng-if="income.saveSuccess" class="label label-success">Saved</span>
-        </p>
-        <h5>Total: {{track.getTotalIncomes() | currency}}</h5>
+        </div>
+      </div>
     </div>
 </div>

@@ -14,6 +14,8 @@ import (
 )
 
 const EVENT_KIND = "event"
+const EXPENSE = "expense"
+const INCOME = "income"
 
 func init() {
 	http.HandleFunc("/data", crud)
@@ -218,7 +220,7 @@ func readQParams(r *http.Request, qParams *QParams) error {
 }
 
 func assertValidKind(kind string, c appengine.Context) error {
-	if kind != "expense" && kind != "income" {
+	if kind != EXPENSE && kind != INCOME {
 		return errors.New("Invalid kind: '" + kind + "'")
 	} else {
 		c.Infof("Data has kind %s", kind)

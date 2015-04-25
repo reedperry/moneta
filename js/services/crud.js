@@ -1,8 +1,6 @@
-services.factory('DB', ['$http', '$log', function($http, $log) {
+services.factory('DB', ['$http', '$log', 'Type', function($http, $log, Type) {
 
     var CRUD_URL = 'data';
-    var EXPENSE_KIND = 'expense';
-    var INCOME_KIND = 'income';
 
     function storeEvent(event, kind) {
         if (!event) {
@@ -13,7 +11,7 @@ services.factory('DB', ['$http', '$log', function($http, $log) {
             return;
         }
 
-        if (kind === EXPENSE_KIND || kind === INCOME_KIND) {
+        if (kind === Type.EXPENSE || kind === Type.INCOME) {
           event.kind = kind;
         } else {
             $log.log('Invalid kind %s', kind);
@@ -23,14 +21,10 @@ services.factory('DB', ['$http', '$log', function($http, $log) {
         return $http.post(CRUD_URL, event);
     }
 
-    function getEvents(user, kind) {
-      if (!user) {
-        $log.log('No user to get events.');
-        return;
-      }
-      var url = CRUD_URL + '?user=' + user;
-      if (kind) {
-        url += '&kind=' + kind;
+    function getEvents(kind, user) {
+      var url = CRUD_URL + '?kind=' + kind;
+      if (user) {
+        url += '&user=' + user;
       }
       return $http.get(url)
         .success(function(data, status) {
@@ -44,19 +38,19 @@ services.factory('DB', ['$http', '$log', function($http, $log) {
     var db = {
 
         storeExpense: function(expense) {
-          return storeEvent(expense, EXPENSE_KIND);
+          return storeEvent(expense, Type.EXPENSE);
         },
 
         storeIncome: function(income) {
-          return storeEvent(income, INCOME_KIND);
+          return storeEvent(income, Type.INCOME);
         },
 
         getExpenses: function(user) {
-          return getEvents(user, EXPENSE_KIND);
+          return getEvents(Type.EXPENSE, user);
         },
 
         getIncomes: function(user) {
-          return getEvents(user, INCOME_KIND);
+          return getEvents(Type.INCOME, user);
         }
     };
 

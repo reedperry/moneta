@@ -1,4 +1,4 @@
-services.factory('Tracker', function() {
+services.factory('Tracker', ['DB', function(DB) {
 
     var expenses = [],
         incomes = [];
@@ -59,6 +59,24 @@ services.factory('Tracker', function() {
             return incomes;
         },
 
+        updateExpenses: function() {
+            return DB.getExpenses()
+              .success(function(data, status) {
+                _.forEach(data.data, function(event) {
+                  expenses.push(event);
+                });
+              });
+        },
+
+        updateIncomes: function() {
+            return DB.getIncomes()
+              .success(function(data, status) {
+                _.forEach(data.data, function(event) {
+                  incomes.push(event);
+                });
+              });
+        },
+
         findExpense: function(expense) {
             match = _.filter(expenses, _.matches(expense));
             if (_.isEmpty(match)) {
@@ -107,4 +125,4 @@ services.factory('Tracker', function() {
 
     return tracker;
 
-});
+}]);

@@ -1,14 +1,17 @@
-controllers.controller('TrackingController', ['$location', 'DB', 'Tracker',
-  function TrackingControllerFactory($location, DB, Tracker) {
+controllers.controller('TrackingController', ['$location', 'DB', 'Tracker', 'Type',
+  function TrackingControllerFactory($location, DB, Tracker, Type) {
 
     var track = this;
-    var INCOME = 'income',
-        EXPENSE = 'expense';
 
-    DB.getExpenses('test@example.com')
+    Tracker.updateExpenses()
       .success(function(data) {
         console.log('expenses: %O', data)
-        });
+      });
+
+    Tracker.updateIncomes()
+      .success(function(data) {
+        console.log('incomes: %O', data)
+      });
 
     track.getExpenses = Tracker.getExpenses;
     track.getTotalExpenses = Tracker.totalExpenses;
@@ -18,7 +21,7 @@ controllers.controller('TrackingController', ['$location', 'DB', 'Tracker',
             amount: track.amount,
             comment: track.comment,
             date: track.date,
-            kind: EXPENSE
+            kind: Type.EXPENSE
         };
 
         Tracker.addExpense(expense);
@@ -50,7 +53,7 @@ controllers.controller('TrackingController', ['$location', 'DB', 'Tracker',
             amount: track.amount,
             comment: track.comment,
             date: track.date,
-            kind: INCOME
+            kind: Type.INCOME
         };
 
         Tracker.addIncome(income);

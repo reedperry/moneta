@@ -3,12 +3,12 @@ var services = angular.module('moneta.services', ['moneta.filters']);
 var directives = angular.module('moneta.directives', ['moneta.services', 'moneta.filters']);
 var controllers = angular.module('moneta.controllers', ['moneta.services', 'moneta.directives', 'moneta.filters']);
 
-var moneta = angular.module('moneta', ['ngAnimate', 'ngRoute', 'ngTouch', 'moneta.filters', 
+var moneta = angular.module('moneta', ['ngAnimate', 'ngRoute', 'ngTouch', 'moneta.filters',
         'moneta.services', 'moneta.directives', 'moneta.controllers']);
 
-moneta.config(['$compileProvider', '$controllerProvider','$filterProvider', '$locationProvider', 
+moneta.config(['$compileProvider', '$controllerProvider','$filterProvider', '$locationProvider',
         '$logProvider', '$provide', '$routeProvider',
-        function($compileProvider, $controllerProvider, $filterProvider, $locationProvider, 
+        function($compileProvider, $controllerProvider, $filterProvider, $locationProvider,
             $logProvider, $provide, $routeProvider) {
 
     // Available for scripts loaded after the application has been bootstrapped
@@ -46,3 +46,8 @@ moneta.config(['$compileProvider', '$controllerProvider','$filterProvider', '$lo
 
 }]);
 
+moneta.constant('Type', {
+  EXPENSE: 'expense',
+  INCOME: 'income',
+  EVENT_KIND: 'event'
+});
