@@ -3,22 +3,19 @@ controllers.controller('TrackingController', ['$location', 'DB', 'Tracker', 'Typ
 
     var track = this;
 
-    Tracker.updateExpenses()
-      .success(function(data) {
-        console.log('expenses: %O', data)
-      });
-
-    Tracker.updateIncomes()
-      .success(function(data) {
-        console.log('incomes: %O', data)
-      });
-
     track.getExpenses = Tracker.getExpenses;
     track.getTotalExpenses = Tracker.totalExpenses;
+    track.getIncomes = Tracker.getIncomes;
+    track.getTotalIncomes = Tracker.totalIncomes;
+
+    track.setDefaultCategories = setDefaultCategories.bind(track);
+    track.categories = [];
+    track.setDefaultCategories();
 
     track.addExpense = function() {
         var expense = {
             amount: track.amount,
+            category: track.category,
             comment: track.comment,
             date: track.date,
             kind: Type.EXPENSE
@@ -45,12 +42,10 @@ controllers.controller('TrackingController', ['$location', 'DB', 'Tracker', 'Typ
         track.clearForm();
     };
 
-    track.getIncomes = Tracker.getIncomes;
-    track.getTotalIncomes = Tracker.totalIncomes;
-
     track.addIncome = function() {
         var income = {
             amount: track.amount,
+            category: track.category,
             comment: track.comment,
             date: track.date,
             kind: Type.INCOME
@@ -79,9 +74,25 @@ controllers.controller('TrackingController', ['$location', 'DB', 'Tracker', 'Typ
 
     track.clearForm = function() {
         track.amount = null;
+        track.category = null;
         track.comment = null;
         track.date = new Date();
     };
 
     track.clearForm();
+
+    function setDefaultCategories() {
+      this.categories = [
+        'Auto',
+        'Credit Card',
+        'Clothing',
+        'Utilities',
+        'Entertainment',
+        'Transportation',
+        'Grocery',
+        'Health',
+        'Home',
+        'Other'
+      ];
+    }
 }]);

@@ -9,6 +9,7 @@ services.factory('Tracker', ['DB', function(DB) {
          * Add a new expense.
          * Takes a numerical value, or an object containing details of the expense:
          *   amount: number
+         *   category: string
          *   comment: string
          *   date: date
          */
@@ -32,6 +33,7 @@ services.factory('Tracker', ['DB', function(DB) {
          * Add a new income.
          * Takes a numerical value, or an object containing details of the income:
          *   amount: number
+         *   category: string
          *   comment: string
          *   date: date
          */

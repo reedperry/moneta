@@ -192,6 +192,10 @@ func readQParams(r *http.Request, qParams *QParams) error {
 		qParams.Comment = r.FormValue("comment")
 	}
 
+	if r.FormValue("category") != "" {
+		qParams.Category = r.FormValue("category")
+	}
+
 	if r.FormValue("end") != "" {
 		maxDate, err := time.Parse(time.RFC3339Nano, r.FormValue("end"))
 		if err != nil {
@@ -237,20 +241,22 @@ func authorize(c appengine.Context) (*user.User, error) {
 }
 
 type event struct {
-	Amount  float64   `json:"amount"`
-	Comment string    `json:"comment"`
-	Date    time.Time `json:"date"`
-	Kind    string    `json:"kind"`
-	User    string    `json:"user"`
+	Amount   float64   `json:"amount"`
+	Category string    `json:"category"`
+	Comment  string    `json:"comment"`
+	Date     time.Time `json:"date"`
+	Kind     string    `json:"kind"`
+	User     string    `json:"user"`
 }
 
 type QParams struct {
-	User    string    `json:"user"`
-	Kind    string    `json:"kind"`
-	Amount  float64   `json:"amount"`
-	Comment string    `json:"comment"`
-	MaxDate time.Time `json:"before"`
-	MinDate time.Time `json:"after"`
+	User     string    `json:"user"`
+	Kind     string    `json:"kind"`
+	Amount   float64   `json:"amount"`
+	Category string    `json:"category"`
+	Comment  string    `json:"comment"`
+	MaxDate  time.Time `json:"before"`
+	MinDate  time.Time `json:"after"`
 }
 
 type response struct {

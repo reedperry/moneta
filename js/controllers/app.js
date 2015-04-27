@@ -1,6 +1,6 @@
-controllers.controller('AppController', ['$location', App]);
+controllers.controller('AppController', ['$location', 'Tracker', App]);
 
-function App($location) {
+function App($location, Tracker) {
     var app = this;
     app.$location = $location;
 
@@ -19,5 +19,7 @@ function App($location) {
     this.goToPreferences = function() {
         this.$location.path('/prefs');
     }
-}
 
+    Tracker.updateExpenses();
+    Tracker.updateIncomes();
+}
