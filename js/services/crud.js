@@ -21,10 +21,13 @@ services.factory('DB', ['$http', '$log', 'Type', function($http, $log, Type) {
         return $http.post(CRUD_URL, event);
     }
 
-    function getEvents(kind, user) {
+    function getEvents(kind, opts) {
       var url = CRUD_URL + '?kind=' + kind;
-      if (user) {
+      if (opts.user) {
         url += '&user=' + user;
+      }
+      if (opts.sort) {
+        url += '&_sort=' + opts.sort;
       }
       return $http.get(url)
         .success(function(data, status) {
@@ -45,12 +48,12 @@ services.factory('DB', ['$http', '$log', 'Type', function($http, $log, Type) {
           return storeEvent(income, Type.INCOME);
         },
 
-        getExpenses: function(user) {
-          return getEvents(Type.EXPENSE, user);
+        getExpenses: function(opts) {
+          return getEvents(Type.EXPENSE, opts);
         },
 
-        getIncomes: function(user) {
-          return getEvents(Type.INCOME, user);
+        getIncomes: function(opts) {
+          return getEvents(Type.INCOME, opts);
         }
     };
 

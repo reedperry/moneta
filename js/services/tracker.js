@@ -62,7 +62,7 @@ services.factory('Tracker', ['DB', function(DB) {
         },
 
         updateExpenses: function() {
-            return DB.getExpenses()
+            return DB.getExpenses({sort: '-date'})
               .success(function(data, status) {
                 _.forEach(data.data, function(event) {
                   expenses.push(event);
@@ -71,7 +71,7 @@ services.factory('Tracker', ['DB', function(DB) {
         },
 
         updateIncomes: function() {
-            return DB.getIncomes()
+            return DB.getIncomes({sort: '-date'})
               .success(function(data, status) {
                 _.forEach(data.data, function(event) {
                   incomes.push(event);

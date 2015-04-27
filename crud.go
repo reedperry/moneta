@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -78,6 +79,7 @@ func doGet(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.
 
 	query := datastore.NewQuery(EVENT_KIND)
 	query = applyFilters(qParams, query, c, u)
+	query = applySort(qParams, query, c)
 	results := make([]event, 0, 10)
 	keys, err := query.GetAll(c, &results)
 	if err == nil {
@@ -173,6 +175,30 @@ func applyFilters(qParams *QParams, query *datastore.Query, c appengine.Context,
 	return query
 }
 
+func applySort(qParams *QParams, query *datastore.Query, c appengine.Context) *datastore.Query {
+	if qParams.Sort != "" {
+		sortField := ""
+		desc := false
+
+		if strings.HasPrefix(qParams.Sort, "-") {
+			desc = true
+			sortField = qParams.Sort[1:]
+		} else {
+			sortField = qParams.Sort
+		}
+
+		sortField = strings.ToUpper(sortField[:1]) + strings.ToLower(sortField[1:])
+
+		if desc {
+			sortField = "-" + sortField
+		}
+		c.Infof("Sorting query by %v", sortField)
+		query = query.Order(sortField)
+	}
+
+	return query
+}
+
 func readQParams(r *http.Request, qParams *QParams) error {
 	var err error
 
@@ -220,6 +246,8 @@ func readQParams(r *http.Request, qParams *QParams) error {
 	 */
 	qParams.User = r.FormValue("user")
 
+	qParams.Sort = r.FormValue("_sort")
+
 	return nil
 }
 
@@ -257,6 +285,7 @@ type QParams struct {
 	Comment  string    `json:"comment"`
 	MaxDate  time.Time `json:"before"`
 	MinDate  time.Time `json:"after"`
+	Sort     string    `json:"_sort"`
 }
 
 type response struct {
