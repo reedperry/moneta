@@ -1,0 +1,20 @@
+<div>
+  <h3>Preferences</h3>
+  <form role="form">
+    <div class="form-group">
+      <label class="control-label">Week Starts On</label>
+      <select class="form-control" ng-model="prefs.startOfWeek"
+        ng-options="day for day in prefs.daysOfWeek"></select>
+    </div>
+    <div class="row">
+      <div class="form-group col-md-2">
+        <button class="btn btn-primary" ng-click="prefs.startAddingCategory()">Add Custom Category</button>
+      </div>
+      <div class="form-group col-md-2">
+        <input class="form-control" placeholder="Custom Category" ng-show="prefs.addingCategory"
+          ng-blur="prefs.endAddingCategory()">
+      </div>
+    </div>
+  </form>
+  <p>More stuff coming here...</p>
+</div>
