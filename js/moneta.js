@@ -22,22 +22,16 @@ moneta.config(['$compileProvider', '$controllerProvider','$filterProvider', '$lo
     $locationProvider.html5Mode(false);
 
     $routeProvider.when('/', {
-        templateUrl: 'views/home.html',
-        controller: 'HomeController as home',
-    });
-
-    $routeProvider.when('/track', {
         templateUrl: 'views/track.html',
         controller: 'TrackingController as track',
     });
-
 
     $routeProvider.when('/reports', {
         templateUrl: 'views/reports.html',
         controller: 'ReportsController as reports',
     });
 
-    $routeProvider.when('/preferences', {
+    $routeProvider.when('/prefs', {
         templateUrl: 'views/prefs.html',
         controller: 'PrefsController as prefs',
     });

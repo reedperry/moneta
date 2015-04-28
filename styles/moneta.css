@@ -3,7 +3,7 @@ body {
 }
 
 .view-panel {
-    padding: 10px;
+    padding: 5px;
 }
 
 .animate-fade.ng-enter, .view-animate.ng-leave {

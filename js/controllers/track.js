@@ -3,6 +3,7 @@ controllers.controller('TrackingController', ['$location', 'DB', 'Tracker', 'Typ
 
     var track = this;
 
+    track.today = new Date();
     track.getExpenses = Tracker.getExpenses;
     track.getTotalExpenses = Tracker.totalExpenses;
     track.getIncomes = Tracker.getIncomes;
