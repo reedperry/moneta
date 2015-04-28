@@ -47,6 +47,8 @@ func serveApp(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(content))
 }
 
+// Crud is the entry point to CRUD operations. It directs requests based on
+// finding an authorized user and the method of the request.
 func crud(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	u, err := authorize(c)
@@ -65,6 +67,7 @@ func crud(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// DoGet handles GET requests, and returns data to the user based on a query.
 func doGet(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.User) {
 	qParams := new(QParams)
 	if err := readQParams(r, qParams); err != nil {
@@ -97,6 +100,7 @@ func doGet(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.
 	}
 }
 
+// DoPost handles POST requests.
 func doPost(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.User) {
 	entity := new(event)
 	if err := readEntity(r, entity); err != nil {
@@ -129,10 +133,13 @@ func doPost(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user
 	w.Write(text)
 }
 
+// HandleError returns an error for a given HTTP response.
 func handleError(w http.ResponseWriter, err error, c *appengine.Context) {
 	http.Error(w, err.Error(), http.StatusInternalServerError)
 }
 
+// ReadEntity reads a JSON value into entity from a Request body.
+// An error is returned if the body cannot be read into entity.
 func readEntity(r *http.Request, entity *event) error {
 	defer r.Body.Close()
 
@@ -150,6 +157,8 @@ func readEntity(r *http.Request, entity *event) error {
 	return nil
 }
 
+// ApplyFilters adds filters to query based on the values found in qParams, and potentially
+// the current user's Admin role.
 func applyFilters(qParams *QParams, query *datastore.Query, c appengine.Context, u *user.User) *datastore.Query {
 
 	query = query.Filter("Kind =", qParams.Kind)
@@ -175,6 +184,7 @@ func applyFilters(qParams *QParams, query *datastore.Query, c appengine.Context,
 	return query
 }
 
+// ApplySort adds a sort order to query, based on a parameter found in qParams, if any.
 func applySort(qParams *QParams, query *datastore.Query, c appengine.Context) *datastore.Query {
 	if qParams.Sort != "" {
 		sortField := ""
@@ -182,12 +192,13 @@ func applySort(qParams *QParams, query *datastore.Query, c appengine.Context) *d
 
 		if strings.HasPrefix(qParams.Sort, "-") {
 			desc = true
-			sortField = qParams.Sort[1:]
+			sortField = string([]rune(qParams.Sort)[1:])
 		} else {
 			sortField = qParams.Sort
 		}
 
-		sortField = strings.ToUpper(sortField[:1]) + strings.ToLower(sortField[1:])
+		sortField = strings.ToUpper(string([]rune(sortField[:1]))) +
+			strings.ToLower(string([]rune(sortField[1:])))
 
 		if desc {
 			sortField = "-" + sortField
@@ -199,6 +210,8 @@ func applySort(qParams *QParams, query *datastore.Query, c appengine.Context) *d
 	return query
 }
 
+// ReadQParams examines request parameters for specific values and stores them
+// in qParams.
 func readQParams(r *http.Request, qParams *QParams) error {
 	var err error
 
@@ -242,7 +255,8 @@ func readQParams(r *http.Request, qParams *QParams) error {
 
 	/*
 	 * Read this parameter if present, but will only be used if an admin
-	 * is making the request.
+	 * is making the request. Normal users will automatically have their
+	 * queries filtered to their own events.
 	 */
 	qParams.User = r.FormValue("user")
 
@@ -251,6 +265,8 @@ func readQParams(r *http.Request, qParams *QParams) error {
 	return nil
 }
 
+// AssertValidKind verifies that the a 'kind' parameter matches one of
+// the valid event types that the application can handle.
 func assertValidKind(kind string, c appengine.Context) error {
 	if kind != EXPENSE && kind != INCOME {
 		return errors.New("Invalid kind: '" + kind + "'")
@@ -260,6 +276,9 @@ func assertValidKind(kind string, c appengine.Context) error {
 	}
 }
 
+// Authorize verifies that the user making the request should be allowed
+// to continue. If the user is not authorized, an error is returned with
+// a nil user value.
 func authorize(c appengine.Context) (*user.User, error) {
 	if u := user.Current(c); u == nil {
 		return nil, errors.New("User not logged in!")
