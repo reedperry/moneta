@@ -15,11 +15,13 @@ import (
 )
 
 const EVENT_KIND = "event"
+const USER_KIND = "user"
 const EXPENSE = "expense"
 const INCOME = "income"
 
 func init() {
 	http.HandleFunc("/data", crud)
+	http.HandleFunc("/user", userData)
 	http.HandleFunc("/", serveApp)
 }
 
@@ -63,8 +65,97 @@ func crud(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		doPost(w, r, c, u)
 	default:
-		fmt.Fprint(w, "Method not supported!")
+		c.Infof("Method %v not supported!", r.Method)
+		fmt.Fprintf(w, "Method %v not supported!", r.Method)
 	}
+}
+
+func userData(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	u, err := authorize(c)
+	if err != nil {
+		fmt.Fprintf(w, "Authorization error: %v", err)
+		return
+	}
+
+	switch r.Method {
+	case "GET":
+		getUser(w, r, c, u)
+	case "POST":
+		storeUser(w, r, c, u)
+	default:
+		c.Infof("Method %v not supported!", r.Method)
+		fmt.Fprintf(w, "Method %v not supported!", r.Method)
+	}
+}
+
+func getUser(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.User) {
+	userId := u.Email
+	c.Infof("Getting user %v", userId)
+	userKeyId := createUserKeyId(userId, c)
+	userKey := datastore.NewKey(c, USER_KIND, userKeyId, 0, nil)
+	appUser := new(AppUser)
+
+	err := datastore.Get(c, userKey, appUser)
+	if err != nil {
+		c.Infof("No user data found for %v. %v", userId, err.Error())
+		http.Error(w, "User not found", 404)
+		return
+	} else {
+		resp := UserResponse{true, *appUser}
+
+		if text, err := json.Marshal(resp); err == nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(text)
+		} else {
+			handleError(w, err, &c)
+		}
+	}
+}
+
+func storeUser(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.User) {
+	appUser := new(AppUser)
+	if err := readEntity(r, appUser); err != nil {
+		handleError(w, err, &c)
+	}
+
+	if !isValidUser(appUser) {
+		c.Infof("Invalid user object in request: %v", appUser)
+		http.Error(w, "Invalid user object!", 400)
+		return
+	}
+
+	if appUser.Id != u.Email {
+		c.Infof("User %v attempted to store data about user %v. Denied.", u.Email, appUser.Id)
+		http.Error(w, "Not authorized to change another user!", 403)
+		return
+	}
+
+	userKeyId := createUserKeyId(appUser.Id, c)
+	userKey := datastore.NewKey(c, USER_KIND, userKeyId, 0, nil)
+	_, err := datastore.Put(c, userKey, appUser)
+	if err != nil {
+		handleError(w, err, &c)
+	}
+	
+	c.Infof("Updated user %v", appUser.Id)
+
+	resp := UserResponse{true, *appUser}
+	text, err := json.Marshal(resp)
+	if err != nil {
+		handleError(w, err, &c)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(text)
+}
+
+func createUserKeyId(userId string, c appengine.Context) string {
+	if userId == "" {
+		c.Warningf("Creating a user data key with no userId!")
+	}
+
+	return "user:" + userId
 }
 
 // DoGet handles GET requests, and returns data to the user based on a query.
@@ -83,7 +174,7 @@ func doGet(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.
 	query := datastore.NewQuery(EVENT_KIND)
 	query = applyFilters(qParams, query, c, u)
 	query = applySort(qParams, query, c)
-	results := make([]event, 0, 10)
+	results := make([]Event, 0, 10)
 	keys, err := query.GetAll(c, &results)
 	if err == nil {
 		c.Infof("GetAll returned %v results", len(keys))
@@ -91,10 +182,10 @@ func doGet(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.
 		handleError(w, err, &c)
 	}
 
-	resp := response{true, "", "", results}
-	if json, err := json.Marshal(resp); err == nil {
+	resp := CrudResponse{true, "", "", results}
+	if text, err := json.Marshal(resp); err == nil {
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(json)
+		w.Write(text)
 	} else {
 		handleError(w, err, &c)
 	}
@@ -102,7 +193,7 @@ func doGet(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.
 
 // DoPost handles POST requests.
 func doPost(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.User) {
-	entity := new(event)
+	entity := new(Event)
 	if err := readEntity(r, entity); err != nil {
 		handleError(w, err, &c)
 	}
@@ -123,7 +214,7 @@ func doPost(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user
 		handleError(w, err, &c)
 	}
 
-	resp := response{true, k.String(), "", nil}
+	resp := CrudResponse{true, k.String(), "", nil}
 	text, err := json.Marshal(resp)
 	if err != nil {
 		handleError(w, err, &c)
@@ -140,7 +231,7 @@ func handleError(w http.ResponseWriter, err error, c *appengine.Context) {
 
 // ReadEntity reads a JSON value into entity from a Request body.
 // An error is returned if the body cannot be read into entity.
-func readEntity(r *http.Request, entity *event) error {
+func readEntity(r *http.Request, entity interface{}) error {
 	defer r.Body.Close()
 
 	var body []byte
@@ -276,6 +367,10 @@ func assertValidKind(kind string, c appengine.Context) error {
 	}
 }
 
+func isValidUser(appUser *AppUser) bool {
+	return appUser.Id != ""
+}
+
 // Authorize verifies that the user making the request should be allowed
 // to continue. If the user is not authorized, an error is returned with
 // a nil user value.
@@ -287,7 +382,7 @@ func authorize(c appengine.Context) (*user.User, error) {
 	}
 }
 
-type event struct {
+type Event struct {
 	Amount   float64   `json:"amount"`
 	Category string    `json:"category"`
 	Comment  string    `json:"comment"`
@@ -307,9 +402,20 @@ type QParams struct {
 	Sort     string    `json:"_sort"`
 }
 
-type response struct {
+type AppUser struct {
+	Id               string   `json:"id"`
+	StartOfWeek      string   `json:"startOfWeek"`
+	CustomCategories []string `json:"customCat"`
+}
+
+type UserResponse struct {
+	Ok   bool    `json:"ok"`
+	Data AppUser `json:"data"`
+}
+
+type CrudResponse struct {
 	Ok    bool    `json:"ok"`
 	Key   string  `json:"key"`
 	Error string  `json:"error"`
-	Data  []event `json:"data"`
+	Data  []Event `json:"data"`
 }
